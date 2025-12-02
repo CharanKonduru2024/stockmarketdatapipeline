@@ -62,33 +62,6 @@ The pipeline is fully containerized with Docker Compose and uses Kafka as the ev
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  subgraph Ingestion
-    YF[yfinance] --> BP[BatchProducer]
-    SIM[PriceGenerator] --> SP[StreamProducer]
-  end
-
-  BP --> KB[KafkaBatchTopic]
-  SP --> KR[KafkaRealtimeTopic]
-
-  subgraph MinIO
-    CBatch[BatchConsumer] --> RAW[RawHistorical]
-    CReal[RealtimeConsumer] --> RAWRT[RawRealtime]
-  end
-
-  KB --> CBatch
-  KR --> CReal
-
-  subgraph Spark
-    RAW --> SB[BatchJob]
-    RAWRT --> SS[StreamingJob]
-  end
-
-  SB --> PROCH[ProcessedHistorical]
-  SS --> PROCRT[ProcessedRealtime]
-
-  PROCH --> SFLoader[SnowflakeLoader]
-  SFLoader --> SF[SnowflakeTable]
+![Architecture](architecture.png)
 
 
