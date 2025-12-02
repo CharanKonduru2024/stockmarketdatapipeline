@@ -64,29 +64,30 @@ The pipeline is fully containerized with Docker Compose and uses Kafka as the ev
 
 ```mermaid
 flowchart LR
-    subgraph Ingestion
-        YF[yfinance API<br/>Historical Data] --> BP[Batch Producer]
-        Sim[Random Price Generator<br/>Real-Time] --> SP[Stream Producer]
-    end
+  subgraph Ingestion
+    YF[yfinance API (historical)] --> BP[Batch producer]
+    Sim[Price generator (real-time)] --> SP[Stream producer]
+  end
 
-    BP --> KB[Kafka Topic: batch]
-    SP --> KR[Kafka Topic: realtime]
+  BP --> KB[Kafka topic: batch]
+  SP --> KR[Kafka topic: realtime]
 
-    subgraph Landing Zone (MinIO S3)
-        CBatch[Batch Consumer<br/>→ CSV/Parquet] --> RAW[raw/historical/...]
-        CReal[Realtime Consumer<br/>→ CSV] --> RAW_RT[raw/realtime/...]
-    end
+  subgraph Landing_Zone_MinIO
+    CBatch[Batch consumer] --> RAW[raw/historical/...]
+    CReal[Realtime consumer] --> RAW_RT[raw/realtime/...]
+  end
 
-    KB --> CBatch
-    KR --> CReal
+  KB --> CBatch
+  KR --> CReal
 
-    subgraph Processing (Spark)
-        RAW --> SB[Spark Batch Processor<br/>daily OHLC + change]
-        RAW_RT --> SS[Spark Streaming Processor<br/>MAs + volatility]
-    end
+  subgraph Processing_Spark
+    RAW --> SB[Spark batch processor (daily OHLC)]
+    RAW_RT --> SS[Spark streaming processor (MAs & volatility)]
+  end
 
-    SB --> PROC[processed/historical/...]
-    SS --> PROC_RT[processed/realtime/...]
+  SB --> PROC[processed/historical/...]
+  SS --> PROC_RT[processed/realtime/...]
 
-    PROC --> SFLoader[Snowflake Loader]
-    SFLoader --> SF[(Snowflake<br/>Analytics Table)]
+  PROC --> SFLoader[Snowflake loader]
+  SFLoader --> SF[(Snowflake analytics table)]
+
